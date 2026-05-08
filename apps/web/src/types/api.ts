@@ -115,8 +115,8 @@ export interface LifecycleMessageResponse {
 export interface AddExchangeAccountRequestBody {
   exchange: string;
   label: string;
-  api_key: string;
-  api_secret: string;
+  api_key?: string;
+  api_secret?: string;
   passphrase?: string;
 }
 

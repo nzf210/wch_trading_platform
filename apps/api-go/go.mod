@@ -1,6 +1,8 @@
 module wch-trading-platform/apps/api-go
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.5
 
 replace wch-trading-platform/packages/go => ../../packages/go
 

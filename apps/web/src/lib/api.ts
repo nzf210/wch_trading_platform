@@ -258,6 +258,10 @@ export const apiClient = {
     return request<ApiWallet[]>('/wallets', { authToken });
   },
 
+  getWallet(authToken: string): Promise<ApiWallet> {
+    return request<ApiWallet>('/wallets', { authToken });
+  },
+
   listWchTransactions(authToken: string): Promise<ApiWchTransaction[]> {
     return request<ApiWchTransaction[]>('/wch/transactions', { authToken });
   },

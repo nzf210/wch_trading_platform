@@ -9,18 +9,18 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement>, PropsWithChildren 
 }
 
 const toneClasses: Record<BadgeTone, string> = {
-  neutral: 'bg-slate-800 text-slate-200',
-  info: 'bg-cyan-950 text-cyan-200 ring-1 ring-cyan-900',
-  success: 'bg-emerald-950 text-emerald-200 ring-1 ring-emerald-900',
-  warning: 'bg-amber-950 text-amber-200 ring-1 ring-amber-900',
-  danger: 'bg-rose-950 text-rose-200 ring-1 ring-rose-900',
+  neutral: 'bg-slate-800/80 text-slate-300 border border-slate-700/50',
+  info: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30',
+  success: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
+  warning: 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
+  danger: 'bg-rose-500/10 text-rose-400 border border-rose-500/30',
 };
 
 export function Badge({ children, className, tone = 'neutral', ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium uppercase tracking-[0.16em]',
+        'inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium',
         toneClasses[tone],
         className,
       )}

@@ -6,7 +6,7 @@ export function Card({ children, className, ...props }: PropsWithChildren<HTMLAt
   return (
     <div
       className={cn(
-        'rounded-[28px] border border-slate-800 bg-slate-900/75 shadow-[0_0_0_1px_rgba(15,23,42,0.24)] backdrop-blur',
+        'rounded-2xl border border-slate-800/50 bg-slate-900/60 backdrop-blur-xl shadow-xl shadow-slate-950/50',
         className,
       )}
       {...props}
@@ -18,7 +18,7 @@ export function Card({ children, className, ...props }: PropsWithChildren<HTMLAt
 
 export function CardHeader({ children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   return (
-    <div className={cn('space-y-2 border-b border-slate-800 px-5 py-4', className)} {...props}>
+    <div className={cn('border-b border-slate-800/50 px-6 py-5', className)} {...props}>
       {children}
     </div>
   );
@@ -34,7 +34,7 @@ export function CardTitle({ children, className, ...props }: PropsWithChildren<H
 
 export function CardDescription({ children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLParagraphElement>>) {
   return (
-    <p className={cn('text-sm leading-6 text-slate-400', className)} {...props}>
+    <p className={cn('mt-1 text-sm text-slate-400', className)} {...props}>
       {children}
     </p>
   );
@@ -42,7 +42,7 @@ export function CardDescription({ children, className, ...props }: PropsWithChil
 
 export function CardContent({ children, className, ...props }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   return (
-    <div className={cn('px-5 py-4', className)} {...props}>
+    <div className={cn('px-6 py-5', className)} {...props}>
       {children}
     </div>
   );
