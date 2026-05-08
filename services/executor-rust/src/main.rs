@@ -42,6 +42,13 @@ async fn main() -> anyhow::Result<()> {
 
     // Start Metrics Server
     tokio::spawn(async move {
+        let health_route = warp::path("health").map(|| {
+            warp::reply::with_status(
+                warp::reply::json(&serde_json::json!({"status":"ok","service":"executor-rust"})),
+                warp::http::StatusCode::OK,
+            )
+        });
+
         let metrics_route = warp::path("metrics").map(|| {
             let mut buffer = Vec::new();
             let encoder = TextEncoder::new();
@@ -50,8 +57,10 @@ async fn main() -> anyhow::Result<()> {
             String::from_utf8(buffer).unwrap()
         });
 
-        info!("Metrics server starting on 0.0.0.0:9090/metrics");
-        warp::serve(metrics_route).run(([0, 0, 0, 0], 9090)).await;
+        let routes = health_route.or(metrics_route);
+
+        info!("Metrics/health server starting on 0.0.0.0:9090");
+        warp::serve(routes).run(([0, 0, 0, 0], 9090)).await;
     });
 
     // Start Redis consumers

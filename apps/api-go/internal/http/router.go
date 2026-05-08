@@ -43,10 +43,16 @@ func NewRouter(
 		MaxAge:           300,
 	}))
 
-	r.Get("/api/health", func(w http.ResponseWriter, r *http.Request) {
+	healthHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		if r.Method == http.MethodHead {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 		_, _ = w.Write([]byte(`{"status":"ok","service":"api-go"}`))
-	})
+	}
+	r.MethodFunc(http.MethodGet, "/api/health", healthHandler)
+	r.MethodFunc(http.MethodHead, "/api/health", healthHandler)
 
 	r.Handle("/metrics", promhttp.Handler())
 

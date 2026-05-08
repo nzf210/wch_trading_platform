@@ -6,16 +6,16 @@ export const config = {
   },
   agentModels: {
     // Model Tier 1 (High Reasoning/Strategy)
-    PLANNER: process.env.PLANNER_MODEL || 'gpt-4o',
-    EXECUTOR: process.env.EXECUTOR_MODEL || 'gpt-4o',
-    SECURITY: process.env.SECURITY_MODEL || 'gpt-4o',
+    PLANNER: process.env.PLANNER_MODEL || 'sumopod-m2-7',
+    EXECUTOR: process.env.EXECUTOR_MODEL || 'sumopod-m2-7',
+    SECURITY: process.env.SECURITY_MODEL || 'sumopod-m2-7',
     
     // Model Tier 2 (Efficient Coding/Implementation)
-    API: process.env.API_MODEL || 'gpt-4o-mini',
-    DB: process.env.DB_MODEL || 'gpt-4o-mini',
-    FRONTEND: process.env.FRONTEND_MODEL || 'gpt-4o-mini',
-    SCANNER: process.env.SCANNER_MODEL || 'gpt-4o-mini',
-    FIXER: process.env.FIXER_MODEL || 'gpt-4o-mini',
-    TESTER: process.env.TESTER_MODEL || 'gpt-4o-mini',
+    API: process.env.API_MODEL || 'sumopod-m2-7',
+    DB: process.env.DB_MODEL || 'sumopod-m2-7',
+    FRONTEND: process.env.FRONTEND_MODEL || 'sumopod-m2-7',
+    SCANNER: process.env.SCANNER_MODEL || 'sumopod-m2-7',
+    FIXER: process.env.FIXER_MODEL || 'sumopod-m2-7',
+    TESTER: process.env.TESTER_MODEL || 'sumopod-m2-7',
   }
 };

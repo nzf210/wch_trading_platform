@@ -15,7 +15,7 @@ export abstract class BaseAgent {
     });
   }
 
-  async run(prompt: string, context: string = '') {
+  async run(prompt: string, context: string = ''): Promise<string> {
     console.log(`[${this.name}] Processing task...`);
     try {
       const response = await this.client.chat.completions.create({
@@ -25,10 +25,10 @@ export abstract class BaseAgent {
           { role: 'user', content: prompt }
         ],
       });
-      return response.choices[0].message.content;
+      return response.choices[0].message.content ?? '';
     } catch (error) {
       console.error(`[${this.name}] Error:`, error);
-      return null;
+      return '';
     }
   }
 }

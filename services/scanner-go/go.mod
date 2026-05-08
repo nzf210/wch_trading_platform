@@ -1,8 +1,6 @@
 module wch-trading-platform/services/scanner-go
 
-go 1.23.0
-
-toolchain go1.23.12
+go 1.23
 
 replace wch-trading-platform/packages/go => ../../packages/go
 

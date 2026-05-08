@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "ignoreDeprecations": "6.0",
+    "types": ["node"],
     "strict": true,
     "esModuleInterop": true,
-    "types": ["node"],
     "outDir": "dist",
     "rootDir": "src",
     "declaration": false

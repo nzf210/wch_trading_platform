@@ -34,10 +34,15 @@ func main() {
 
 	s := scanner.NewScanner(repo, redisClient)
 
-	// Start metrics server
+	// Start metrics/health server
 	go func() {
+		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"status":"ok","service":"scanner-go"}`))
+		})
 		http.Handle("/metrics", promhttp.Handler())
-		fmt.Println("Metrics server starting on :9091/metrics")
+		fmt.Println("Metrics/health server starting on :9091")
 		if err := http.ListenAndServe(":9091", nil); err != nil {
 			log.Printf("metrics server failed: %v", err)
 		}
