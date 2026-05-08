@@ -105,6 +105,15 @@ func (p *Processor) publishEvent(ctx context.Context, id string, eventType domai
 		return err
 	}
 
+	if eventType == domain.EventTypeOrderIntentCreated {
+		// For order intents, we use RPush to the queue instead of Pub/Sub
+		data, err := json.Marshal(envelope)
+		if err != nil {
+			return err
+		}
+		return p.redisClient.RPush(ctx, platformredis.OrderIntentQueue, data).Err()
+	}
+
 	stream := platformredis.StreamForEventType(eventType)
 	return platformredis.PublishJSON(ctx, p.redisClient, stream, envelope)
 }

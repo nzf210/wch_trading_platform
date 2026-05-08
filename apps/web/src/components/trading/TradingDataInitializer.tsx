@@ -3,12 +3,12 @@ import { useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useSocket } from '../../hooks/useSocket';
 import { useTradingStore } from '../../store/useTradingStore';
-import { EventEnvelopeWire } from '../../../../packages/shared-types/event';
+import type { EventEnvelopeWire } from '../../types/event';
 
 // This component handles the WebSocket connection and data flow.
 // It doesn't render anything itself.
 export function TradingDataInitializer() {
-  const token = useAuthStore((state) => state.token);
+  const token = useAuthStore((state) => state.accessToken);
   const handleEvent = useTradingStore((state) => state.handleEvent);
 
   const socketUrl = useMemo(() => {

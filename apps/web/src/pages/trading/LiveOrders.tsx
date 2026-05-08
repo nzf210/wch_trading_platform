@@ -2,7 +2,7 @@
 import { useTradingStore } from '../../store/useTradingStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
-import { formatNumber, formatDate } from '../../lib/utils';
+import { formatCurrency, formatNumber, formatDate } from '../../lib/utils';
 
 export function LiveOrders() {
   const orders = useTradingStore((state) => state.orders);
@@ -23,14 +23,14 @@ export function LiveOrders() {
                   {order.symbol} · {order.side}
                 </p>
                 <p className="text-sm text-slate-400">
-                  {order.type} · Target: {formatNumber(order.price, 'currency')}
+                  {order.orderType} · Target: {formatCurrency(order.price)}
                 </p>
               </div>
               <Badge tone={order.status === 'filled' ? 'success' : 'warning'}>{order.status}</Badge>
             </div>
             <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-300">
               <span>Qty: {formatNumber(order.quantity)}</span>
-              <span>Filled: {formatNumber(order.filledQuantity)}</span>
+              <span>Exchange: {order.exchange}</span>
               <span>{formatDate(order.updatedAt)}</span>
             </div>
           </div>

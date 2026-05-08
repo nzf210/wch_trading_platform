@@ -1,9 +1,9 @@
 
 import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import { DomainEventType, EventEnvelopeWire } from '../../../../packages/shared-types/event';
-import { Order } from '../../../../packages/shared-types/order';
-import { Execution } from '../../../../packages/shared-types/execution';
+import type { Execution } from '../types/execution';
+import type { EventEnvelopeWire } from '../types/event';
+import { DomainEventType } from '../types/event';
+import type { Order } from '../types/order';
 
 interface TradingState {
   orders: Order[];
@@ -17,16 +17,13 @@ interface TradingActions {
   processExecutionEvent: (payload: Execution) => void;
 }
 
-export const useTradingStore = create(
-  immer<TradingState & TradingActions>((set) => ({
+export const useTradingStore = create<TradingState & TradingActions>((set) => ({
     orders: [],
     executions: [],
     lastMessage: null,
 
     handleEvent: (event) => {
-      set((state) => {
-        state.lastMessage = event;
-      });
+      set({ lastMessage: event });
 
       console.log('Received event:', event.event_type, event.payload);
 
@@ -35,16 +32,30 @@ export const useTradingStore = create(
         case DomainEventType.ORDER_ACCEPTED:
         case DomainEventType.ORDER_REJECTED:
           set((state) => {
-            state.processOrderEvent(event.payload as Order);
+            const order = event.payload as Order;
+            const index = state.orders.findIndex((current: Order) => current.id === order.id);
+            if (index === -1) {
+              return { orders: [...state.orders, order] };
+            }
+
+            const orders = [...state.orders];
+            orders[index] = order;
+            return { orders };
           });
           break;
-        
+
         case DomainEventType.EXECUTION_FILLED:
           set((state) => {
-            state.processExecutionEvent(event.payload as Execution);
+            const execution = event.payload as Execution;
+            const index = state.executions.findIndex((current: Execution) => current.id === execution.id);
+            if (index !== -1) {
+              return state;
+            }
+
+            return { executions: [...state.executions, execution] };
           });
           break;
-        
+
         default:
           console.warn(`Unhandled event type: ${event.event_type}`);
       }
@@ -52,22 +63,25 @@ export const useTradingStore = create(
 
     processOrderEvent: (order) => {
       set((state) => {
-        const index = state.orders.findIndex((o) => o.id === order.id);
-        if (index !== -1) {
-          state.orders[index] = order;
-        } else {
-          state.orders.push(order);
+        const index = state.orders.findIndex((current: Order) => current.id === order.id);
+        if (index === -1) {
+          return { orders: [...state.orders, order] };
         }
+
+        const orders = [...state.orders];
+        orders[index] = order;
+        return { orders };
       });
     },
 
     processExecutionEvent: (execution) => {
       set((state) => {
-        const index = state.executions.findIndex((e) => e.id === execution.id);
-        if (index === -1) {
-          state.executions.push(execution);
+        const index = state.executions.findIndex((current: Execution) => current.id === execution.id);
+        if (index !== -1) {
+          return state;
         }
+
+        return { executions: [...state.executions, execution] };
       });
     },
-  }))
-);
+  }));

@@ -3,7 +3,10 @@ use anyhow::Result;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-pub async fn save_order_intent(pool: &PgPool, intent: &OrderIntent) -> Result<()> {
+pub async fn save_order_intent_tx(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    intent: &OrderIntent,
+) -> Result<()> {
     sqlx::query(
         r#"
         INSERT INTO order_intents (id, bot_id, user_id, signal_id, side, order_type, quantity, price, status, reason, created_at)
@@ -22,7 +25,7 @@ pub async fn save_order_intent(pool: &PgPool, intent: &OrderIntent) -> Result<()
     .bind(intent.status.clone())
     .bind(intent.reason.clone())
     .bind(intent.created_at)
-    .execute(pool)
+    .execute(&mut **tx)
     .await?;
 
     Ok(())
@@ -58,7 +61,10 @@ pub async fn save_order(pool: &PgPool, order: &Order) -> Result<()> {
     Ok(())
 }
 
-pub async fn reserve_order(pool: &PgPool, order: &Order) -> Result<bool> {
+pub async fn reserve_order_tx(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    order: &Order,
+) -> Result<bool> {
     let rows_affected = sqlx::query(
         r#"
         INSERT INTO orders (id, bot_id, user_id, signal_id, order_intent_id, exchange, symbol, side, order_type, quantity, price, status, exchange_order_id, idempotency_key, raw_response, created_at, updated_at)
@@ -83,7 +89,7 @@ pub async fn reserve_order(pool: &PgPool, order: &Order) -> Result<bool> {
     .bind(order.raw_response.clone())
     .bind(order.created_at)
     .bind(order.updated_at)
-    .execute(pool)
+    .execute(&mut **tx)
     .await?
     .rows_affected();
 
@@ -93,7 +99,12 @@ pub async fn reserve_order(pool: &PgPool, order: &Order) -> Result<bool> {
 pub async fn get_order_by_idempotency_key(pool: &PgPool, key: &str) -> Result<Option<Order>> {
     let order = sqlx::query_as::<_, Order>(
         r#"
-        SELECT id, bot_id, user_id, signal_id, order_intent_id, exchange, symbol, side, order_type, quantity, price, status, exchange_order_id, idempotency_key, raw_response, created_at, updated_at
+        SELECT id, bot_id, user_id, signal_id, order_intent_id, exchange, symbol, side, order_type,
+               quantity::DOUBLE PRECISION AS quantity,
+               price::DOUBLE PRECISION AS price,
+               status, exchange_order_id, idempotency_key, raw_response,
+               created_at AS created_at,
+               updated_at AS updated_at
         FROM orders
         WHERE idempotency_key = $1
         "#,
@@ -105,7 +116,10 @@ pub async fn get_order_by_idempotency_key(pool: &PgPool, key: &str) -> Result<Op
     Ok(order)
 }
 
-pub async fn update_reserved_order(pool: &PgPool, order: &Order) -> Result<()> {
+pub async fn update_reserved_order_tx(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    order: &Order,
+) -> Result<()> {
     sqlx::query(
         r#"
         UPDATE orders
@@ -122,7 +136,7 @@ pub async fn update_reserved_order(pool: &PgPool, order: &Order) -> Result<()> {
     .bind(order.exchange_order_id.clone())
     .bind(order.raw_response.clone())
     .bind(order.updated_at)
-    .execute(pool)
+    .execute(&mut **tx)
     .await?;
 
     Ok(())
@@ -131,7 +145,12 @@ pub async fn update_reserved_order(pool: &PgPool, order: &Order) -> Result<()> {
 pub async fn get_open_orders(pool: &PgPool) -> Result<Vec<Order>> {
     let rows = sqlx::query_as::<_, Order>(
         r#"
-        SELECT id, bot_id, user_id, signal_id, order_intent_id, exchange, symbol, side, order_type, quantity, price, status, exchange_order_id, idempotency_key, raw_response, created_at, updated_at
+        SELECT id, bot_id, user_id, signal_id, order_intent_id, exchange, symbol, side, order_type,
+               quantity::DOUBLE PRECISION AS quantity,
+               price::DOUBLE PRECISION AS price,
+               status, exchange_order_id, idempotency_key, raw_response,
+               created_at AS created_at,
+               updated_at AS updated_at
         FROM orders
         WHERE status IN ('pending', 'submitted', 'accepted', 'partially_filled')
         "#

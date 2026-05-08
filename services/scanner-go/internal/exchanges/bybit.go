@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Bybit struct {
@@ -17,6 +18,7 @@ func NewBybit() *Bybit {
 }
 
 func (b *Bybit) GetTicker(ctx context.Context, symbol string) (*Ticker, error) {
+	symbol = strings.ReplaceAll(symbol, "/", "")
 	url := fmt.Sprintf("%s/v5/market/tickers?category=spot&symbol=%s", b.BaseURL, symbol)
 	resp, err := http.Get(url)
 	if err != nil {

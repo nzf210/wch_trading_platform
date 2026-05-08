@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Okx struct {
@@ -17,6 +18,7 @@ func NewOkx() *Okx {
 }
 
 func (o *Okx) GetTicker(ctx context.Context, symbol string) (*Ticker, error) {
+	symbol = strings.ReplaceAll(symbol, "/", "-")
 	url := fmt.Sprintf("%s/api/v5/market/ticker?instId=%s", o.BaseURL, symbol)
 	resp, err := http.Get(url)
 	if err != nil {

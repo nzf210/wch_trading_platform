@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-08T18:54:56.115Z",
+  "entries": {
+    "memory:memory/2026-05-08.md:1:30": {
+      "key": "memory:memory/2026-05-08.md:1:30",
+      "path": "memory/2026-05-08.md",
+      "startLine": 1,
+      "endLine": 30,
+      "source": "memory",
+      "snippet": "# 2026-05-08 - Workspace Initialization ## Summary Hari ini workspace `wch-flatform-trading` diinisialisasi dan dikonfigurasi sebagai fokus utama. Masalah limit konteks pada model MiniMax telah diatasi. ## Events - **Context Limit Fix:** Mengubah `contextWindow` dari 4.000 menjadi 204.800 di `openclaw.json` dan `models.json`. - **Workspace Shift:** Memindahkan fokus agen ke `/home/deploy/.openclaw/wch-flatform-trading`. - **Documentation:** Membuat `MEMORY.md` dan inisialisasi folder `memory/`. ## Tasks - [x] Perbaiki error \"Context limit exceeded\". - [x] Sinkronisasi konfigurasi workspace. - [ ] Menunggu instruksi tugas trading pertama dari Syahril. # 2026-05-08 - Workspace Initializatio",
+      "recallCount": 4,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 2.5306737304480245,
+      "maxScore": 0.6326684326120061,
+      "firstRecalledAt": "2026-05-08T18:43:06.878Z",
+      "lastRecalledAt": "2026-05-08T18:54:56.115Z",
+      "queryHashes": [
+        "0e4369af6534",
+        "58319c4daef2",
+        "63f9c43bece0",
+        "b8da9801fea9"
+      ],
+      "recallDays": [
+        "2026-05-08"
+      ],
+      "conceptTags": [
+        "wch-flatform-trading",
+        "4.000",
+        "204.800",
+        "openclaw.json",
+        "models.json",
+        "home/deploy",
+        "openclaw/wch-flatform-trading",
+        "memory.md"
+      ]
+    }
+  }
+}

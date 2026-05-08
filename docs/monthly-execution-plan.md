@@ -29,6 +29,8 @@ acak dan tetap fokus pada jalur bernilai tertinggi.
 - `2026-05-08`: `Minggu 3 Hari 4-5` selesai.
 - `2026-05-08`: `Minggu 4 Hari 1` selesai.
 - `2026-05-08`: `Minggu 4 Hari 2-3` selesai.
+- `2026-05-08`: `Minggu 4 Hari 4-5` selesai.
+- `2026-05-08`: `Milestone 6 (Metrics Dasar & Integration Test)` selesai.
 - Artefak selesai: [contract-freeze-week1.md](/home/deploy/wch-trading-platform/docs/contract-freeze-week1.md:1).
 - Artefak selesai: [handoff-update-2026-05-08-week1-day2.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-week1-day2.md:1).
 - Artefak selesai: [handoff-update-2026-05-08-week1-day3.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-week1-day3.md:1).
@@ -40,8 +42,10 @@ acak dan tetap fokus pada jalur bernilai tertinggi.
 - Artefak selesai: [handoff-update-2026-05-08-week3-day4-day5.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-week3-day4-day5.md:1).
 - Artefak selesai: [handoff-update-2026-05-08-week4-day1.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-week4-day1.md:1).
 - Artefak selesai: [handoff-update-2026-05-08-week4-day2-day3.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-week4-day2-day3.md:1).
+- Artefak selesai: [handoff-update-2026-05-08-week4-day4-day5.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-week4-day4-day5.md:1).
+- Artefak selesai: [handoff-update-2026-05-08-smoke-test.md](/home/deploy/wch-trading-platform/docs/handoff-update-2026-05-08-smoke-test.md:1).
 - Artefak selesai: [state-machine-week1.md](/home/deploy/wch-trading-platform/docs/state-machine-week1.md:1).
-- Task berikutnya: `Minggu 4 Hari 4` untuk observability dasar dan propagation correlation id.
+- Task berikutnya: Selesaikan sisa Milestone 1-5 yang masih "sebagian" atau "baru awal" (terutama event delivery dan safety di executor) sebelum masuk ke scope Live Trading.
 
 ## Cara Pakai
 
@@ -69,9 +73,9 @@ Jika sesi baru dibuka dan pekerjaan ingin langsung dilanjutkan:
 - `Milestone 1`: sebagian selesai
 - `Milestone 2`: sebagian besar selesai
 - `Milestone 3`: sebagian selesai
-- `Milestone 4`: baru awal
-- `Milestone 5`: baru awal
-- `Milestone 6`: baru awal
+- `Milestone 4`: sebagian selesai (scanner metrics & logic dasar)
+- `Milestone 5`: selesai (outbox/inbox konsisten lintas Go & Rust)
+- `Milestone 6`: selesai
 
 Kesimpulan baseline:
 

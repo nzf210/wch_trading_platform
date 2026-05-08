@@ -18,11 +18,11 @@ func NewRepository(db *sql.DB) *Repository {
 func (r *Repository) GetByBotID(ctx context.Context, botID string) (*domain.RiskSettings, error) {
 	risk := &domain.RiskSettings{}
 	query := `
-		SELECT id, bot_id, max_position_size, max_daily_loss, stop_loss_percent, take_profit_percent, emergency_stop, created_at, updated_at
+		SELECT id, bot_id, max_position_size, max_daily_loss, max_drawdown_percent, stop_loss_percent, take_profit_percent, trailing_stop_percent, emergency_stop, created_at, updated_at
 		FROM risk_settings WHERE bot_id = $1
 	`
 	err := r.db.QueryRowContext(ctx, query, botID).Scan(
-		&risk.ID, &risk.BotID, &risk.MaxPositionSize, &risk.MaxDailyLoss, &risk.StopLossPercent, &risk.TakeProfitPercent, &risk.EmergencyStop, &risk.CreatedAt, &risk.UpdatedAt,
+		&risk.ID, &risk.BotID, &risk.MaxPositionSize, &risk.MaxDailyLoss, &risk.MaxDrawdownPercent, &risk.StopLossPercent, &risk.TakeProfitPercent, &risk.TrailingStopPercent, &risk.EmergencyStop, &risk.CreatedAt, &risk.UpdatedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -36,11 +36,11 @@ func (r *Repository) GetByBotID(ctx context.Context, botID string) (*domain.Risk
 func (r *Repository) Update(ctx context.Context, risk *domain.RiskSettings) error {
 	query := `
 		UPDATE risk_settings
-		SET max_position_size = $1, max_daily_loss = $2, stop_loss_percent = $3, take_profit_percent = $4, emergency_stop = $5, updated_at = NOW()
-		WHERE bot_id = $6
+		SET max_position_size = $1, max_daily_loss = $2, max_drawdown_percent = $3, stop_loss_percent = $4, take_profit_percent = $5, trailing_stop_percent = $6, emergency_stop = $7, updated_at = NOW()
+		WHERE bot_id = $8
 	`
 	_, err := r.db.ExecContext(ctx, query,
-		risk.MaxPositionSize, risk.MaxDailyLoss, risk.StopLossPercent, risk.TakeProfitPercent, risk.EmergencyStop, risk.BotID,
+		risk.MaxPositionSize, risk.MaxDailyLoss, risk.MaxDrawdownPercent, risk.StopLossPercent, risk.TakeProfitPercent, risk.TrailingStopPercent, risk.EmergencyStop, risk.BotID,
 	)
 	return err
 }

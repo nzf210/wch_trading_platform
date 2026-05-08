@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Binance struct {
@@ -17,6 +18,7 @@ func NewBinance() *Binance {
 }
 
 func (b *Binance) GetTicker(ctx context.Context, symbol string) (*Ticker, error) {
+	symbol = strings.ReplaceAll(symbol, "/", "")
 	url := fmt.Sprintf("%s/api/v3/ticker/price?symbol=%s", b.BaseURL, symbol)
 	resp, err := http.Get(url)
 	if err != nil {

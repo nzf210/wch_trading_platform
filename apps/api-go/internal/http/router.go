@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func NewRouter(
@@ -29,6 +30,7 @@ func NewRouter(
 ) *chi.Mux {
 	r := chi.NewRouter()
 
+	r.Use(MetricsMiddleware)
 	r.Use(CorrelationIDMiddleware)
 	r.Use(RequestLoggerMiddleware)
 	r.Use(middleware.Recoverer)
@@ -45,6 +47,8 @@ func NewRouter(
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"status":"ok","service":"api-go"}`))
 	})
+
+	r.Handle("/metrics", promhttp.Handler())
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {

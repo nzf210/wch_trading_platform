@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"wch-trading-platform/apps/api-go/internal/identity/subscription"
+	"wch-trading-platform/apps/api-go/internal/platform/metrics"
 	"wch-trading-platform/apps/api-go/internal/trading/risk"
 	"wch-trading-platform/packages/go/domain"
 
@@ -85,9 +86,11 @@ func (s *Service) CreateBot(ctx context.Context, userID string, req CreateBotReq
 	}
 
 	if err := s.repo.CreateBot(ctx, bot, risk); err != nil {
+		metrics.BotLifecycleEventsTotal.WithLabelValues("create", "failed").Inc()
 		return nil, nil, err
 	}
 
+	metrics.BotLifecycleEventsTotal.WithLabelValues("create", "success").Inc()
 	return bot, risk, nil
 }
 
@@ -99,7 +102,13 @@ func (s *Service) ActivatePaper(ctx context.Context, botID string) error {
 	if bot.Status != domain.BotStatusDraft && bot.Status != domain.BotStatusPaused {
 		return fmt.Errorf("bot can only activate paper mode from draft or paused state")
 	}
-	return s.repo.UpdateBotStatus(ctx, botID, domain.BotStatusPaperActive, "user activated paper mode")
+	err = s.repo.UpdateBotStatus(ctx, botID, domain.BotStatusPaperActive, "user activated paper mode")
+	if err != nil {
+		metrics.BotLifecycleEventsTotal.WithLabelValues("activate_paper", "failed").Inc()
+		return err
+	}
+	metrics.BotLifecycleEventsTotal.WithLabelValues("activate_paper", "success").Inc()
+	return nil
 }
 
 func (s *Service) RequestLiveActivation(ctx context.Context, userID, botID string) error {
@@ -144,7 +153,13 @@ func (s *Service) PauseBot(ctx context.Context, botID string) error {
 	if bot.Status != domain.BotStatusPaperActive && bot.Status != domain.BotStatusLiveActive {
 		return fmt.Errorf("bot can only be paused from an active state")
 	}
-	return s.repo.UpdateBotStatus(ctx, botID, domain.BotStatusPaused, "user paused bot")
+	err = s.repo.UpdateBotStatus(ctx, botID, domain.BotStatusPaused, "user paused bot")
+	if err != nil {
+		metrics.BotLifecycleEventsTotal.WithLabelValues("pause", "failed").Inc()
+		return err
+	}
+	metrics.BotLifecycleEventsTotal.WithLabelValues("pause", "success").Inc()
+	return nil
 }
 
 func (s *Service) StopBot(ctx context.Context, botID string) error {
@@ -155,7 +170,13 @@ func (s *Service) StopBot(ctx context.Context, botID string) error {
 	if bot.Status == domain.BotStatusStopped {
 		return fmt.Errorf("bot is already stopped")
 	}
-	return s.repo.UpdateBotStatus(ctx, botID, domain.BotStatusStopped, "user stopped bot")
+	err = s.repo.UpdateBotStatus(ctx, botID, domain.BotStatusStopped, "user stopped bot")
+	if err != nil {
+		metrics.BotLifecycleEventsTotal.WithLabelValues("stop", "failed").Inc()
+		return err
+	}
+	metrics.BotLifecycleEventsTotal.WithLabelValues("stop", "success").Inc()
+	return nil
 }
 
 func (s *Service) ListUserBots(ctx context.Context, userID string) ([]domain.Bot, error) {

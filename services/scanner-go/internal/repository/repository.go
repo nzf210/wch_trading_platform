@@ -52,7 +52,14 @@ func (r *Repository) GetActiveBots(ctx context.Context) ([]domain.Bot, error) {
 	return bots, nil
 }
 
-func (r *Repository) SaveSignal(ctx context.Context, signal *domain.Signal) error {
+func (r *Repository) SaveSignalWithOutbox(ctx context.Context, signal *domain.Signal, intent interface{}) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// 1. Save Signal
 	query := `
 		INSERT INTO scanner_signals (id, bot_id, user_id, exchange, symbol, strategy, action, price, confidence, schema_version, feature_snapshot, ttl_ms, dedup_key, provenance, payload, status, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
@@ -60,8 +67,42 @@ func (r *Repository) SaveSignal(ctx context.Context, signal *domain.Signal) erro
 	payloadJSON, _ := json.Marshal(signal.Payload)
 	featureSnapshotJSON, _ := json.Marshal(signal.FeatureSnapshot)
 	provenanceJSON, _ := json.Marshal(signal.Provenance)
-	_, err := r.db.ExecContext(ctx, query,
+	_, err = tx.ExecContext(ctx, query,
 		signal.ID, signal.BotID, signal.UserID, signal.Exchange, signal.Symbol, signal.Strategy, signal.Action, signal.Price, signal.Confidence, signal.SchemaVersion, featureSnapshotJSON, signal.TTLMs, signal.DedupKey, provenanceJSON, payloadJSON, signal.Status, signal.CreatedAt,
 	)
+	if err != nil {
+		return err
+	}
+
+	// 2. Save Outbox: signal.generated
+	if err := r.saveOutboxEvent(ctx, tx, domain.EventTypeSignalGenerated, signal, signal.BotID, signal.UserID); err != nil {
+		return err
+	}
+
+	// 3. Save Outbox: order.intent.created
+	if err := r.saveOutboxEvent(ctx, tx, domain.EventTypeOrderIntentCreated, intent, signal.BotID, signal.UserID); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r *Repository) saveOutboxEvent(ctx context.Context, tx *sql.Tx, eventType domain.EventType, payload interface{}, botID, userID string) error {
+	payloadJSON, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	metadataJSON, _ := json.Marshal(map[string]interface{}{
+		"producer": "services/scanner-go",
+		"bot_id":   botID,
+		"user_id":  userID,
+	})
+
+	query := `
+		INSERT INTO outbox_events (id, event_type, payload, metadata, status, created_at)
+		VALUES (gen_random_uuid(), $1, $2, $3, 'pending', NOW())
+	`
+	_, err = tx.ExecContext(ctx, query, eventType, payloadJSON, metadataJSON)
 	return err
 }

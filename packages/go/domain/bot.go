@@ -40,13 +40,15 @@ type Bot struct {
 }
 
 type RiskSettings struct {
-	ID                string    `json:"id"`
-	BotID             string    `json:"bot_id"`
-	MaxPositionSize   *float64  `json:"max_position_size,omitempty"`
-	MaxDailyLoss      *float64  `json:"max_daily_loss,omitempty"`
-	StopLossPercent   *float64  `json:"stop_loss_percent,omitempty"`
-	TakeProfitPercent *float64  `json:"take_profit_percent,omitempty"`
-	EmergencyStop     bool      `json:"emergency_stop"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	ID                   string    `json:"id"`
+	BotID                string    `json:"bot_id"`
+	MaxPositionSize      *float64  `json:"max_position_size,omitempty"`
+	MaxDailyLoss         *float64  `json:"max_daily_loss,omitempty"`
+	MaxDrawdownPercent   *float64  `json:"max_drawdown_percent,omitempty"`
+	StopLossPercent      *float64  `json:"stop_loss_percent,omitempty"`
+	TakeProfitPercent    *float64  `json:"take_profit_percent,omitempty"`
+	TrailingStopPercent  *float64  `json:"trailing_stop_percent,omitempty"`
+	EmergencyStop        bool      `json:"emergency_stop"`
+	CreatedAt            time.Time `json:"created_at"`
+	UpdatedAt            time.Time `json:"updated_at"`
 }

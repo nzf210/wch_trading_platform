@@ -48,6 +48,7 @@ pub struct RiskSettings {
     pub bot_id: uuid::Uuid,
     pub max_position_size: Option<f64>,
     pub max_daily_loss: Option<f64>,
+    pub max_drawdown_percent: Option<f64>,
     pub stop_loss_percent: Option<f64>,
     pub take_profit_percent: Option<f64>,
     pub trailing_stop_percent: Option<f64>,

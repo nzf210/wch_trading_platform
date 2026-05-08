@@ -2,6 +2,7 @@ mod app;
 mod config;
 mod exchange;
 mod execution;
+mod metrics;
 mod postgres;
 mod redis;
 mod risk;
@@ -12,9 +13,12 @@ use crate::app::App;
 use crate::config::Config;
 use crate::execution::Reconciler;
 use crate::redis as internal_redis;
+use prometheus::{Encoder, TextEncoder};
 use std::sync::Arc;
 use tracing::{error, info};
+use tracing_subscriber::prelude::*;
 use tracing_subscriber::{fmt, EnvFilter};
+use warp::Filter;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -35,6 +39,20 @@ async fn main() -> anyhow::Result<()> {
         .await?,
     );
     info!("Connected to database");
+
+    // Start Metrics Server
+    tokio::spawn(async move {
+        let metrics_route = warp::path("metrics").map(|| {
+            let mut buffer = Vec::new();
+            let encoder = TextEncoder::new();
+            let metric_families = prometheus::gather();
+            encoder.encode(&metric_families, &mut buffer).unwrap();
+            String::from_utf8(buffer).unwrap()
+        });
+
+        info!("Metrics server starting on 0.0.0.0:9090/metrics");
+        warp::serve(metrics_route).run(([0, 0, 0, 0], 9090)).await;
+    });
 
     // Start Redis consumers
     let order_app = Arc::clone(&app);

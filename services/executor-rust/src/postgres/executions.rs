@@ -3,7 +3,10 @@ use anyhow::Result;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-pub async fn save_execution(pool: &PgPool, execution: &Execution) -> Result<()> {
+pub async fn save_execution_tx(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    execution: &Execution,
+) -> Result<()> {
     sqlx::query(
         r#"
         INSERT INTO executions (
@@ -40,7 +43,7 @@ pub async fn save_execution(pool: &PgPool, execution: &Execution) -> Result<()> 
     .bind(execution.status.clone())
     .bind(execution.executed_at)
     .bind(execution.created_at)
-    .execute(pool)
+    .execute(&mut **tx)
     .await?;
 
     Ok(())
@@ -57,13 +60,13 @@ pub async fn get_execution_by_order_id(
             order_id,
             bot_id,
             user_id,
-            filled_quantity,
-            average_price,
-            fee,
-            pnl,
+            filled_quantity::DOUBLE PRECISION AS filled_quantity,
+            average_price::DOUBLE PRECISION AS average_price,
+            fee::DOUBLE PRECISION AS fee,
+            pnl::DOUBLE PRECISION AS pnl,
             status,
-            executed_at,
-            created_at
+            executed_at AS executed_at,
+            created_at AS created_at
         FROM executions
         WHERE order_id = $1
         "#,

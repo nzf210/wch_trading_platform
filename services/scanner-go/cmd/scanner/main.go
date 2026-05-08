@@ -7,10 +7,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"net/http"
 	"wch-trading-platform/services/scanner-go/internal/config"
 	"wch-trading-platform/services/scanner-go/internal/redis"
 	"wch-trading-platform/services/scanner-go/internal/repository"
 	"wch-trading-platform/services/scanner-go/internal/scanner"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -31,6 +33,15 @@ func main() {
 	defer redisClient.Close()
 
 	s := scanner.NewScanner(repo, redisClient)
+
+	// Start metrics server
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		fmt.Println("Metrics server starting on :9091/metrics")
+		if err := http.ListenAndServe(":9091", nil); err != nil {
+			log.Printf("metrics server failed: %v", err)
+		}
+	}()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -52,8 +52,10 @@ export interface RiskSettings {
   botId: string;
   maxPositionSize?: number;
   maxDailyLoss?: number;
+  maxDrawdownPercent?: number;
   stopLossPercent?: number;
   takeProfitPercent?: number;
+  trailingStopPercent?: number;
   emergencyStop: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -64,9 +66,12 @@ export interface RiskSettingsWire {
   bot_id: string;
   max_position_size?: number;
   max_daily_loss?: number;
+  max_drawdown_percent?: number;
   stop_loss_percent?: number;
   take_profit_percent?: number;
+  trailing_stop_percent?: number;
   emergency_stop: boolean;
   created_at: IsoDatetimeString;
   updated_at: IsoDatetimeString;
 }
+

@@ -4,14 +4,14 @@ use sqlx::{Pool, Postgres};
 
 pub async fn get_open_positions(pool: &Pool<Postgres>) -> Result<Vec<Position>> {
     let positions = sqlx::query_as::<_, Position>(
-        "SELECT id, bot_id, user_id, symbol, side, quantity,
-         average_entry_price,
-         high_water_mark,
-         stop_loss_price,
-         take_profit_price,
-         unrealized_pnl,
-         realized_pnl,
-         updated_at FROM positions WHERE quantity > 0",
+        "SELECT id, bot_id, user_id, symbol, side, quantity::DOUBLE PRECISION AS quantity,
+         average_entry_price::DOUBLE PRECISION AS average_entry_price,
+         high_water_mark::DOUBLE PRECISION AS high_water_mark,
+         stop_loss_price::DOUBLE PRECISION AS stop_loss_price,
+         take_profit_price::DOUBLE PRECISION AS take_profit_price,
+         unrealized_pnl::DOUBLE PRECISION AS unrealized_pnl,
+         realized_pnl::DOUBLE PRECISION AS realized_pnl,
+         updated_at AS updated_at FROM positions WHERE quantity > 0",
     )
     .fetch_all(pool)
     .await?;

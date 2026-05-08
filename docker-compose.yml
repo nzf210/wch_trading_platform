@@ -35,6 +35,8 @@ services:
       context: .
       dockerfile: ./services/scanner-go/Dockerfile
     container_name: wch_scanner_go
+    ports:
+      - "9091:9091"
     env_file:
       - .env
     depends_on:
@@ -47,6 +49,8 @@ services:
     build:
       context: ./services/executor-rust
     container_name: wch_executor_rust
+    ports:
+      - "9090:9090"
     env_file:
       - .env
     depends_on:

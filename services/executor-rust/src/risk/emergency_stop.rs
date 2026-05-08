@@ -1,4 +1,4 @@
-use crate::risk::RiskChecker;
+use crate::risk::{RiskChecker, RiskOutcome};
 use crate::types::bot::RiskSettings;
 use crate::types::order::OrderIntent;
 use async_trait::async_trait;
@@ -7,10 +7,17 @@ pub struct EmergencyStopChecker;
 
 #[async_trait]
 impl RiskChecker for EmergencyStopChecker {
-    async fn check(&self, _intent: &OrderIntent, settings: &RiskSettings) -> Result<(), String> {
+    async fn check(
+        &self,
+        _intent: &OrderIntent,
+        settings: &RiskSettings,
+        _pool: &sqlx::PgPool,
+    ) -> Result<RiskOutcome, String> {
         if settings.emergency_stop {
-            return Err("Emergency stop is active for this bot".to_string());
+            return Ok(RiskOutcome::Reject(
+                "Emergency stop is active for this bot".to_string(),
+            ));
         }
-        Ok(())
+        Ok(RiskOutcome::Pass)
     }
 }

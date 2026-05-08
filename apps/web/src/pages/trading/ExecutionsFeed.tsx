@@ -1,7 +1,7 @@
 
 import { useTradingStore } from '../../store/useTradingStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
-import { formatNumber, formatDate } from '../../lib/utils';
+import { formatCurrency, formatNumber, formatDate } from '../../lib/utils';
 import { Badge } from '../../components/ui/Badge';
 
 export function ExecutionsFeed() {
@@ -20,17 +20,17 @@ export function ExecutionsFeed() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-medium text-white">
-                  {exec.symbol} · {exec.side}
+                  {exec.orderId}
                 </p>
                 <p className="text-sm text-slate-400">
-                  Filled at {formatNumber(exec.price, 'currency')}
+                  Avg price {formatCurrency(exec.averagePrice)}
                 </p>
               </div>
               <Badge tone="success">Filled</Badge>
             </div>
             <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-300">
-              <span>Qty: {formatNumber(exec.quantity)}</span>
-              <span>Fee: {formatNumber(exec.fee, 'currency')}</span>
+              <span>Qty: {formatNumber(exec.filledQuantity)}</span>
+              <span>Fee: {formatCurrency(exec.fee)}</span>
               <span>{formatDate(exec.executedAt)}</span>
             </div>
           </div>

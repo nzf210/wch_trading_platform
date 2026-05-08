@@ -6,6 +6,7 @@ import (
 	"time"
 	"wch-trading-platform/packages/go/domain"
 	"wch-trading-platform/services/scanner-go/internal/exchanges"
+	"wch-trading-platform/services/scanner-go/internal/platform/metrics"
 	"wch-trading-platform/services/scanner-go/internal/redis"
 	"wch-trading-platform/services/scanner-go/internal/repository"
 	"wch-trading-platform/services/scanner-go/internal/strategies"
@@ -60,6 +61,7 @@ func (s *Scanner) scan(ctx context.Context) {
 	}
 
 	for _, b := range bots {
+		start := time.Now()
 		// Use real exchange name from bot if available, default to binance for now
 		exchangeName := "binance"
 		if b.ExchangeAccountID != nil && *b.ExchangeAccountID != "" {
@@ -94,6 +96,7 @@ func (s *Scanner) scan(ctx context.Context) {
 		if shouldTrade {
 			s.generateSignal(ctx, b, action, exchangeName, price)
 		}
+		metrics.ScannerProcessingDuration.WithLabelValues(b.Symbol).Observe(time.Since(start).Seconds())
 	}
 }
 
@@ -109,12 +112,20 @@ func (s *Scanner) generateSignal(ctx context.Context, b domain.Bot, action domai
 		Reason:        "strategy match",
 	}, now)
 
-	// 1. Save to DB
-	if err := s.repo.SaveSignal(ctx, &signal); err != nil {
-		fmt.Printf("[%s] Error saving signal: %v\n", correlationID, err)
+	intent, err := BuildOrderIntent(b, signal, now)
+	if err != nil {
+		fmt.Printf("[%s] Error building order intent: %v\n", correlationID, err)
 		return
 	}
 
+	// 1. Save to DB with Outbox (Atomically)
+	if err := s.repo.SaveSignalWithOutbox(ctx, &signal, intent); err != nil {
+		fmt.Printf("[%s] Error saving signal with outbox: %v\n", correlationID, err)
+		return
+	}
+
+	// 2. Fast-path: best effort publish to Redis immediately
+	// Note: outbox processor in api-go will also pick this up if it stays 'pending'
 	event := domain.EventEnvelope{
 		EventID:        uuid.New().String(),
 		EventType:      domain.EventTypeSignalGenerated,
@@ -130,23 +141,15 @@ func (s *Scanner) generateSignal(ctx context.Context, b domain.Bot, action domai
 	}
 
 	if err := redis.PublishSignal(ctx, s.redisClient, "stream.market-events", event); err != nil {
-		fmt.Printf("[%s] Error publishing signal event: %v\n", correlationID, err)
-		return
+		fmt.Printf("[%s] Fast-path signal publish failed (outbox will retry): %v\n", correlationID, err)
 	}
 
-	intent, err := BuildOrderIntent(b, signal, now)
-	if err != nil {
-		fmt.Printf("[%s] Error building order intent: %v\n", correlationID, err)
-		return
-	}
-
-	// 3. Push to Redis queue "order_intents"
 	if err := redis.PushOrderIntent(ctx, s.redisClient, "order_intents", intent); err != nil {
-		fmt.Printf("[%s] Error pushing order intent: %v\n", correlationID, err)
-		return
+		fmt.Printf("[%s] Fast-path order intent push failed (outbox will retry): %v\n", correlationID, err)
 	}
 
-	fmt.Printf("[%s] Signal v2 generated and intent pushed for bot %s: %s at %f quantity=%f\n", correlationID, b.ID, action, price, intent.Quantity)
+	metrics.SignalsGeneratedTotal.WithLabelValues(b.Strategy, b.Symbol, string(action)).Inc()
+	fmt.Printf("[%s] Signal v2 generated and saved to outbox for bot %s: %s at %f quantity=%f\n", correlationID, b.ID, action, price, intent.Quantity)
 }
 
 func stringPtr(value string) *string {
