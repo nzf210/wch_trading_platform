@@ -1,0 +1,9 @@
+ALTER TABLE outbox_events
+    ADD COLUMN IF NOT EXISTS last_error TEXT,
+    ADD COLUMN IF NOT EXISTS last_attempt_at TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS next_retry_at TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS failed_at TIMESTAMP;
+
+ALTER TABLE inbox_events
+    ADD COLUMN IF NOT EXISTS delivery_attempts INT DEFAULT 1,
+    ADD COLUMN IF NOT EXISTS last_error TEXT;

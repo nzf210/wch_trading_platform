@@ -1,0 +1,130 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: wch_web
+    ports:
+      - "8081:3000"
+    env_file:
+      - .env
+    depends_on:
+      - api-go
+    networks:
+      - wch_network
+
+  api-go:
+    build:
+      context: .
+      dockerfile: ./apps/api-go/Dockerfile
+    container_name: wch_api_go
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - wch_network
+
+  scanner-go:
+    build:
+      context: .
+      dockerfile: ./services/scanner-go/Dockerfile
+    container_name: wch_scanner_go
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - wch_network
+
+  executor-rust:
+    build:
+      context: ./services/executor-rust
+    container_name: wch_executor_rust
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - wch_network
+
+  ai-agent:
+    build:
+      context: ./services/ai-agent
+    container_name: wch_ai_agent
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - wch_network
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+    container_name: wch_notification_service
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - wch_network
+
+  postgres:
+    image: postgres:16
+    container_name: wch_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wch_trading
+      POSTGRES_USER: wch_user
+      POSTGRES_PASSWORD: wch_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - wch_postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - wch_network
+
+  redis:
+    image: redis:7
+    container_name: wch_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - wch_redis_data:/data
+    networks:
+      - wch_network
+
+#  nginx:
+#    image: nginx:alpine
+#    container_name: wch_nginx
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
+#      - /etc/nginx/bot-trading.crt:/etc/nginx/ssl/bot-trading.crt:ro
+#      - /etc/nginx/bot-trading.key:/etc/nginx/ssl/bot-trading.key:ro
+#    depends_on:
+#      - web
+#      - api-go
+#    networks:
+#      - wch_network
+
+volumes:
+  wch_postgres_data:
+  wch_redis_data:
+
+networks:
+  wch_network:
+    driver: bridge

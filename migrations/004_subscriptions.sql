@@ -1,0 +1,1 @@
+-- Reserved migration placeholder for 004_subscriptions

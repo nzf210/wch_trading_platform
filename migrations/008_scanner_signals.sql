@@ -1,0 +1,1 @@
+-- Reserved migration placeholder for 008_scanner_signals

@@ -1,0 +1,1 @@
+-- Reserved migration placeholder for 006_bots

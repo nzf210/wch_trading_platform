@@ -1,0 +1,103 @@
+# Environment
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+*.local
+
+# Dependencies
+node_modules/
+vendor/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+target/
+bin/
+out/
+debug/
+release/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.suo
+*.pdb
+*.ilk
+*.aps
+
+# Specific Project Binaries
+/api
+/scanner
+apps/api-go/api
+services/scanner-go/scanner
+
+# Go
+go.work
+go.work.sum
+*.test
+*.out
+
+# Rust
+target/
+**/*.rs.bk
+
+# Node/TS
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.eslintcache
+.stylelintcache
+.node_repl_history
+
+# IDEs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Temporary files
+tmp/
+.tmp/
+temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv
+venv/
+env/
+
+# Docker
+.docker-build/
+
+# Logs
+logs/
+*.log
